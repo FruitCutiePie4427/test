@@ -1,244 +1,228 @@
-const form = document.getElementById("recordForm");
-const recordBody = document.getElementById("recordBody");
-const recordCount = document.getElementById("recordCount");
-const clearAllButton = document.getElementById("clearAll");
-const recovery45El = document.getElementById("recovery45");
-const recovery90El = document.getElementById("recovery90");
-const recovery135El = document.getElementById("recovery135");
-const recovery180El = document.getElementById("recovery180");
-const recovery225El = document.getElementById("recovery225");
-const ctx = document.getElementById("trendChart").getContext("2d");
+const form = document.getElementById('recordForm');
+const recovery45El = document.getElementById('recovery45');
+const recovery90El = document.getElementById('recovery90');
+const recovery135El = document.getElementById('recovery135');
+const recovery180El = document.getElementById('recovery180');
+const recovery225El = document.getElementById('recovery225');
+const recordsTableBody = document.getElementById('recordsTableBody');
+const clearBtn = document.getElementById('clearBtn');
+const ctx = document.getElementById('trendChart').getContext('2d');
 
+const STORAGE_KEY = 'heartRateRecords';
 let records = [];
 let chart;
 
-function formatDateTime(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-  return date.toLocaleString("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function parseNumber(value) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : 0;
 }
 
-function calculateRecovery(record) {
+function calculateRecoveries(data) {
+  const rest = parseNumber(data.restHr);
   return {
-    recovery45: record.hr0 - record.hr45,
-    recovery90: record.hr0 - record.hr90,
-    recovery135: record.hr0 - record.hr135,
-    recovery180: record.hr0 - record.hr180,
-    recovery225: record.hr0 - record.hr225,
+    recovery45: parseNumber(data.hr45) - rest,
+    recovery90: parseNumber(data.hr90) - rest,
+    recovery135: parseNumber(data.hr135) - rest,
+    recovery180: parseNumber(data.hr180) - rest,
+    recovery225: parseNumber(data.hr225) - rest,
   };
 }
 
-function updateSummary(recovery) {
-  recovery45El.textContent = recovery.recovery45;
-  recovery90El.textContent = recovery.recovery90;
-  recovery135El.textContent = recovery.recovery135;
-  recovery180El.textContent = recovery.recovery180;
-  recovery225El.textContent = recovery.recovery225;
+function updateRecoveryValues() {
+  const formData = new FormData(form);
+  const values = {
+    restHr: formData.get('restHr'),
+    hr45: formData.get('hr45'),
+    hr90: formData.get('hr90'),
+    hr135: formData.get('hr135'),
+    hr180: formData.get('hr180'),
+    hr225: formData.get('hr225'),
+  };
+  const recovery = calculateRecoveries(values);
+
+  recovery45El.textContent = Number.isNaN(recovery.recovery45) ? '-' : `${recovery.recovery45} bpm`;
+  recovery90El.textContent = Number.isNaN(recovery.recovery90) ? '-' : `${recovery.recovery90} bpm`;
+  recovery135El.textContent = Number.isNaN(recovery.recovery135) ? '-' : `${recovery.recovery135} bpm`;
+  recovery180El.textContent = Number.isNaN(recovery.recovery180) ? '-' : `${recovery.recovery180} bpm`;
+  recovery225El.textContent = Number.isNaN(recovery.recovery225) ? '-' : `${recovery.recovery225} bpm`;
 }
 
-function renderRecords() {
-  recordBody.innerHTML = "";
-  records.slice().reverse().forEach((record) => {
-    const recovery = calculateRecovery(record);
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${formatDateTime(record.time)}</td>
-      <td>${record.name}</td>
-      <td>${record.hr0}</td>
-      <td>${record.hr45}</td>
-      <td>${record.hr90}</td>
-      <td>${record.hr135}</td>
-      <td>${record.hr180}</td>
-      <td>${record.hr225}</td>
-      <td>${recovery.recovery45} / ${recovery.recovery90} / ${recovery.recovery135} / ${recovery.recovery180} / ${recovery.recovery225}</td>
-    `;
-    recordBody.appendChild(row);
+function formatDatetime(value) {
+  const date = new Date(value);
+  return date.toLocaleString('zh-Hant', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   });
-  recordCount.textContent = records.length;
 }
 
-function getChartLabels() {
-  return records.map((record) => `${formatDateTime(record.time)} ${record.name}`);
-}
-
-function getChartDatasets() {
-  return [
-    {
-      label: "45秒恢復值",
-      data: records.map((record) => record.hr0 - record.hr45),
-      borderColor: "#39d98a",
-      backgroundColor: "rgba(57, 217, 138, 0.24)",
-      tension: 0.32,
-      fill: true,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    },
-    {
-      label: "90秒恢復值",
-      data: records.map((record) => record.hr0 - record.hr90),
-      borderColor: "#2aa8ff",
-      backgroundColor: "rgba(42, 168, 255, 0.16)",
-      tension: 0.32,
-      fill: true,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    },
-    {
-      label: "135秒恢復值",
-      data: records.map((record) => record.hr0 - record.hr135),
-      borderColor: "#9f6cff",
-      backgroundColor: "rgba(159, 108, 255, 0.16)",
-      tension: 0.32,
-      fill: true,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    },
-    {
-      label: "180秒恢復值",
-      data: records.map((record) => record.hr0 - record.hr180),
-      borderColor: "#ffd166",
-      backgroundColor: "rgba(255, 209, 102, 0.16)",
-      tension: 0.32,
-      fill: true,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    },
-    {
-      label: "225秒恢復值",
-      data: records.map((record) => record.hr0 - record.hr225),
-      borderColor: "#ff6b6b",
-      backgroundColor: "rgba(255, 107, 107, 0.16)",
-      tension: 0.32,
-      fill: true,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    },
-  ];
-}
-
-function renderChart() {
-  if (!chart) {
-    chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: getChartLabels(),
-        datasets: getChartDatasets(),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: "index",
-          intersect: false,
-        },
-        plugins: {
-          legend: {
-            labels: {
-              color: "#eaf4ff",
-              boxWidth: 14,
-            },
-          },
-          tooltip: {
-            backgroundColor: "rgba(17, 28, 46, 0.95)",
-            titleColor: "#ffffff",
-            bodyColor: "#eaf4ff",
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: "#a5b8db",
-              maxRotation: 45,
-              minRotation: 0,
-            },
-            grid: {
-              color: "rgba(255,255,255,0.06)",
-            },
-          },
-          y: {
-            ticks: {
-              color: "#a5b8db",
-            },
-            grid: {
-              color: "rgba(255,255,255,0.08)",
-            },
-          },
-        },
-      },
-    });
-  } else {
-    chart.data.labels = getChartLabels();
-    chart.data.datasets = getChartDatasets();
-    chart.update();
-  }
-}
-
-function saveToLocalStorage() {
-  localStorage.setItem("hrRecoveryRecords", JSON.stringify(records));
-}
-
-function loadFromLocalStorage() {
-  const stored = localStorage.getItem("hrRecoveryRecords");
-  if (!stored) {
+function renderTable() {
+  if (!records.length) {
+    recordsTableBody.innerHTML = `<tr><td colspan="9" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
     return;
   }
-  try {
-    const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) {
-      records = parsed;
+
+  recordsTableBody.innerHTML = records
+    .slice()
+    .reverse()
+    .map((record) => {
+      return `
+      <tr>
+        <td>${formatDatetime(record.recordTime)}</td>
+        <td>${record.activityName}</td>
+        <td>${record.restHr} bpm</td>
+        <td>${record.immediateHr} bpm</td>
+        <td>${record.recovery45} bpm</td>
+        <td>${record.recovery90} bpm</td>
+        <td>${record.recovery135} bpm</td>
+        <td>${record.recovery180} bpm</td>
+        <td>${record.recovery225} bpm</td>
+      </tr>
+    `;
+    })
+    .join('');
+}
+
+function saveRecords() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function loadRecords() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      records = JSON.parse(saved);
+    } catch (error) {
+      records = [];
     }
-  } catch (error) {
-    console.warn("載入資料失敗", error);
   }
 }
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+function createChart() {
+  const labels = records.map((item) => formatDatetime(item.recordTime));
+  const datasetBuilder = (key, label, color) => ({
+    label,
+    data: records.map((item) => item[key]),
+    borderColor: color,
+    backgroundColor: color.replace('1)', '0.18)'),
+    tension: 0.28,
+    pointRadius: 4,
+    borderWidth: 2,
+    fill: false,
+  });
 
-  const newRecord = {
-    name: document.getElementById("exerciseName").value.trim(),
-    hr0: Number(document.getElementById("hr0").value),
-    hr45: Number(document.getElementById("hr45").value),
-    hr90: Number(document.getElementById("hr90").value),
-    hr135: Number(document.getElementById("hr135").value),
-    hr180: Number(document.getElementById("hr180").value),
-    hr225: Number(document.getElementById("hr225").value),
-    time: document.getElementById("recordTime").value,
+  const datasets = [
+    datasetBuilder('immediateHr', '運動後即刻心率', 'rgba(60,130,255,1)'),
+    datasetBuilder('recovery45', '45秒恢復值', 'rgba(45,226,169,1)'),
+    datasetBuilder('recovery90', '90秒恢復值', 'rgba(0,176,255,1)'),
+    datasetBuilder('recovery135', '135秒恢復值', 'rgba(170,120,255,1)'),
+    datasetBuilder('recovery180', '180秒恢復值', 'rgba(255,172,51,1)'),
+    datasetBuilder('recovery225', '225秒恢復值', 'rgba(255,86,160,1)'),
+  ];
+
+  if (chart) {
+    chart.data.labels = labels;
+    chart.data.datasets = datasets;
+    chart.update();
+    return;
+  }
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#d3d8ff',
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.dataset.label}: ${context.formattedValue} bpm`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#a1b0d5',
+          },
+          grid: {
+            color: 'rgba(255,255,255,0.05)',
+          },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#a1b0d5',
+          },
+          grid: {
+            color: 'rgba(255,255,255,0.06)',
+          },
+        },
+      },
+    },
+  });
+}
+
+form.addEventListener('input', updateRecoveryValues);
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const formData = new FormData(form);
+
+  const record = {
+    activityName: formData.get('activityName').trim(),
+    restHr: parseNumber(formData.get('restHr')),
+    immediateHr: parseNumber(formData.get('immediateHr')),
+    hr45: parseNumber(formData.get('hr45')),
+    hr90: parseNumber(formData.get('hr90')),
+    hr135: parseNumber(formData.get('hr135')),
+    hr180: parseNumber(formData.get('hr180')),
+    hr225: parseNumber(formData.get('hr225')),
+    recordTime: formData.get('recordTime'),
   };
 
-  records.push(newRecord);
-  saveToLocalStorage();
-  renderRecords();
-  renderChart();
-  updateSummary(calculateRecovery(newRecord));
+  const recoveries = calculateRecoveries(record);
+  record.recovery45 = recoveries.recovery45;
+  record.recovery90 = recoveries.recovery90;
+  record.recovery135 = recoveries.recovery135;
+  record.recovery180 = recoveries.recovery180;
+  record.recovery225 = recoveries.recovery225;
+
+  records.push(record);
+  saveRecords();
+  renderTable();
+  createChart();
   form.reset();
+  updateRecoveryValues();
 });
 
-clearAllButton.addEventListener("click", () => {
-  if (!confirm("是否確認清除所有紀錄？此動作無法復原。")) {
-    return;
+clearBtn.addEventListener('click', () => {
+  if (!records.length) return;
+  if (confirm('確定要清除所有紀錄嗎？此操作無法復原。')) {
+    records = [];
+    saveRecords();
+    renderTable();
+    createChart();
   }
-  records = [];
-  saveToLocalStorage();
-  renderRecords();
-  renderChart();
-  updateSummary({ recovery45: 0, recovery90: 0, recovery135: 0, recovery180: 0, recovery225: 0 });
 });
 
-window.addEventListener("load", () => {
-  loadFromLocalStorage();
-  renderRecords();
-  renderChart();
-  if (records.length > 0) {
-    const lastRecord = records[records.length - 1];
-    updateSummary(calculateRecovery(lastRecord));
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  loadRecords();
+  renderTable();
+  createChart();
+  updateRecoveryValues();
 });

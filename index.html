@@ -5,125 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>運動心率恢復紀錄系統</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-  <script src="script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="page-shell">
-    <header class="hero-panel">
+  <div class="app-shell">
+    <header class="app-header">
       <div>
-        <p class="eyebrow">心肺恢復監測</p>
+        <p class="eyebrow">心肺功能訓練</p>
         <h1>運動心率恢復紀錄系統</h1>
-        <p>輸入每次運動心率資料，自動計算恢復值，並用圖表顯示歷次趨勢。</p>
+        <p class="description">輸入運動資料，自動計算恢復值並檢視歷次趨勢。</p>
       </div>
-      <div class="status-card">
-        <p>目前筆數</p>
-        <strong id="recordCount">0</strong>
-      </div>
+      <div class="badge">無框架純原生</div>
     </header>
 
-    <main>
-      <section class="grid-panel">
-        <article class="panel form-panel">
-          <h2>資料輸入</h2>
-          <form id="recordForm">
-            <label>
-              運動名稱
-              <input type="text" id="exerciseName" placeholder="例如：間歇跑" required />
-            </label>
-            <label>
-              運動結束即刻心率 (bpm)
-              <input type="number" id="hr0" min="30" max="220" placeholder="例如：150" required />
-            </label>
-            <label>
-              運動結束後45秒心率 (bpm)
-              <input type="number" id="hr45" min="30" max="220" placeholder="例如：138" required />
-            </label>
-            <label>
-              運動結束後90秒心率 (bpm)
-              <input type="number" id="hr90" min="30" max="220" placeholder="例如：130" required />
-            </label>
-            <label>
-              運動結束後135秒心率 (bpm)
-              <input type="number" id="hr135" min="30" max="220" placeholder="例如：125" required />
-            </label>
-            <label>
-              運動結束後180秒心率 (bpm)
-              <input type="number" id="hr180" min="30" max="220" placeholder="例如：120" required />
-            </label>
-            <label>
-              運動結束後225秒心率 (bpm)
-              <input type="number" id="hr225" min="30" max="220" placeholder="例如：118" required />
-            </label>
-            <label>
-              紀錄日期與時間
-              <input type="datetime-local" id="recordTime" required />
-            </label>
-            <div class="form-actions">
-              <button type="submit">加入紀錄</button>
-              <button type="button" id="clearAll">清除全部</button>
+    <main class="content-grid">
+      <section class="card form-card">
+        <h2>資料輸入</h2>
+        <form id="recordForm">
+          <div class="field-group">
+            <label for="activityName">運動名稱</label>
+            <input type="text" id="activityName" name="activityName" placeholder="例如：間歇跑步" required />
+          </div>
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="restHr">安靜心率 (bpm)</label>
+              <input type="number" id="restHr" name="restHr" min="30" max="200" step="1" required />
             </div>
-          </form>
-        </article>
-
-        <article class="panel summary-panel">
-          <h2>計算結果</h2>
-          <div class="summary-grid">
-            <div class="summary-card">
-              <p>45秒恢復值</p>
-              <strong id="recovery45">0</strong>
-            </div>
-            <div class="summary-card">
-              <p>90秒恢復值</p>
-              <strong id="recovery90">0</strong>
-            </div>
-            <div class="summary-card">
-              <p>135秒恢復值</p>
-              <strong id="recovery135">0</strong>
-            </div>
-            <div class="summary-card">
-              <p>180秒恢復值</p>
-              <strong id="recovery180">0</strong>
-            </div>
-            <div class="summary-card">
-              <p>225秒恢復值</p>
-              <strong id="recovery225">0</strong>
+            <div class="field-group">
+              <label for="immediateHr">運動結束即刻心率 (bpm)</label>
+              <input type="number" id="immediateHr" name="immediateHr" min="30" max="220" step="1" required />
             </div>
           </div>
-        </article>
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="hr45">運動結束後45秒心率 (bpm)</label>
+              <input type="number" id="hr45" name="hr45" min="30" max="220" step="1" required />
+            </div>
+            <div class="field-group">
+              <label for="hr90">運動結束後90秒心率 (bpm)</label>
+              <input type="number" id="hr90" name="hr90" min="30" max="220" step="1" required />
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="hr135">運動結束後135秒心率 (bpm)</label>
+              <input type="number" id="hr135" name="hr135" min="30" max="220" step="1" required />
+            </div>
+            <div class="field-group">
+              <label for="hr180">運動結束後180秒心率 (bpm)</label>
+              <input type="number" id="hr180" name="hr180" min="30" max="220" step="1" required />
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="hr225">運動結束後225秒心率 (bpm)</label>
+            <input type="number" id="hr225" name="hr225" min="30" max="220" step="1" required />
+          </div>
+          <div class="field-group">
+            <label for="recordTime">紀錄日期與時間</label>
+            <input type="datetime-local" id="recordTime" name="recordTime" required />
+          </div>
+          <div class="result-grid">
+            <div class="result-card">
+              <p>45秒恢復值</p>
+              <strong id="recovery45">-</strong>
+            </div>
+            <div class="result-card">
+              <p>90秒恢復值</p>
+              <strong id="recovery90">-</strong>
+            </div>
+            <div class="result-card">
+              <p>135秒恢復值</p>
+              <strong id="recovery135">-</strong>
+            </div>
+            <div class="result-card">
+              <p>180秒恢復值</p>
+              <strong id="recovery180">-</strong>
+            </div>
+            <div class="result-card">
+              <p>225秒恢復值</p>
+              <strong id="recovery225">-</strong>
+            </div>
+          </div>
+          <button type="submit" class="primary-btn">儲存紀錄</button>
+        </form>
       </section>
 
-      <section class="panel chart-panel">
-        <div class="panel-header">
+      <section class="card chart-card">
+        <div class="card-header">
           <h2>歷次恢復趨勢</h2>
-          <p>顯示每次運動後 0、45、90、135、180、225 秒的心率恢復值。</p>
+          <p>觀察運動後即時心率與各時間點恢復值的進步。</p>
         </div>
-        <canvas id="trendChart" aria-label="心率恢復趨勢圖" role="img"></canvas>
+        <canvas id="trendChart"></canvas>
       </section>
 
-      <section class="panel record-panel">
-        <h2>紀錄列表</h2>
-        <div class="record-table-wrap">
+      <section class="card table-card">
+        <div class="card-header">
+          <h2>紀錄列表</h2>
+          <button id="clearBtn" class="secondary-btn">清除全部紀錄</button>
+        </div>
+        <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>日期時間</th>
+                <th>日期</th>
                 <th>運動</th>
-                <th>即刻</th>
-                <th>45秒</th>
-                <th>90秒</th>
-                <th>135秒</th>
-                <th>180秒</th>
-                <th>225秒</th>
-                <th>45/90/135/180/225</th>
+                <th>安靜心率</th>
+                <th>即時心率</th>
+                <th>45s恢復</th>
+                <th>90s恢復</th>
+                <th>135s恢復</th>
+                <th>180s恢復</th>
+                <th>225s恢復</th>
               </tr>
             </thead>
-            <tbody id="recordBody">
+            <tbody id="recordsTableBody">
+              <tr><td colspan="9" class="empty-state">尚無紀錄，請先新增資料。</td></tr>
             </tbody>
           </table>
         </div>
       </section>
     </main>
   </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
