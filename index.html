@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>運動心率恢復紀錄系統</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero-panel">
+      <div>
+        <p class="eyebrow">心肺恢復監測</p>
+        <h1>運動心率恢復紀錄系統</h1>
+        <p>輸入每次運動心率資料，自動計算恢復值，並用圖表顯示歷次趨勢。</p>
+      </div>
+      <div class="status-card">
+        <p>目前筆數</p>
+        <strong id="recordCount">0</strong>
+      </div>
+    </header>
+
+    <main>
+      <section class="grid-panel">
+        <article class="panel form-panel">
+          <h2>資料輸入</h2>
+          <form id="recordForm">
+            <label>
+              運動名稱
+              <input type="text" id="exerciseName" placeholder="例如：間歇跑" required />
+            </label>
+            <label>
+              運動結束即刻心率 (bpm)
+              <input type="number" id="hr0" min="30" max="220" placeholder="例如：150" required />
+            </label>
+            <label>
+              運動結束後45秒心率 (bpm)
+              <input type="number" id="hr45" min="30" max="220" placeholder="例如：138" required />
+            </label>
+            <label>
+              運動結束後90秒心率 (bpm)
+              <input type="number" id="hr90" min="30" max="220" placeholder="例如：130" required />
+            </label>
+            <label>
+              運動結束後135秒心率 (bpm)
+              <input type="number" id="hr135" min="30" max="220" placeholder="例如：125" required />
+            </label>
+            <label>
+              運動結束後180秒心率 (bpm)
+              <input type="number" id="hr180" min="30" max="220" placeholder="例如：120" required />
+            </label>
+            <label>
+              運動結束後225秒心率 (bpm)
+              <input type="number" id="hr225" min="30" max="220" placeholder="例如：118" required />
+            </label>
+            <label>
+              紀錄日期與時間
+              <input type="datetime-local" id="recordTime" required />
+            </label>
+            <div class="form-actions">
+              <button type="submit">加入紀錄</button>
+              <button type="button" id="clearAll">清除全部</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel summary-panel">
+          <h2>計算結果</h2>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <p>45秒恢復值</p>
+              <strong id="recovery45">0</strong>
+            </div>
+            <div class="summary-card">
+              <p>90秒恢復值</p>
+              <strong id="recovery90">0</strong>
+            </div>
+            <div class="summary-card">
+              <p>135秒恢復值</p>
+              <strong id="recovery135">0</strong>
+            </div>
+            <div class="summary-card">
+              <p>180秒恢復值</p>
+              <strong id="recovery180">0</strong>
+            </div>
+            <div class="summary-card">
+              <p>225秒恢復值</p>
+              <strong id="recovery225">0</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-header">
+          <h2>歷次恢復趨勢</h2>
+          <p>顯示每次運動後 0、45、90、135、180、225 秒的心率恢復值。</p>
+        </div>
+        <canvas id="trendChart" aria-label="心率恢復趨勢圖" role="img"></canvas>
+      </section>
+
+      <section class="panel record-panel">
+        <h2>紀錄列表</h2>
+        <div class="record-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期時間</th>
+                <th>運動</th>
+                <th>即刻</th>
+                <th>45秒</th>
+                <th>90秒</th>
+                <th>135秒</th>
+                <th>180秒</th>
+                <th>225秒</th>
+                <th>45/90/135/180/225</th>
+              </tr>
+            </thead>
+            <tbody id="recordBody">
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
