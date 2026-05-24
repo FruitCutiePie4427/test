@@ -57,7 +57,7 @@ function formatDatetime(value) {
 
 function renderTable() {
   if (!records.length) {
-    recordsTableBody.innerHTML = `<tr><td colspan="9" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
+    recordsTableBody.innerHTML = `<tr><td colspan="14" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
     return;
   }
 
@@ -71,6 +71,11 @@ function renderTable() {
         <td>${record.activityName}</td>
         <td>${record.restHr} bpm</td>
         <td>${record.immediateHr} bpm</td>
+        <td>${record.hr45} bpm</td>
+        <td>${record.hr90} bpm</td>
+        <td>${record.hr135} bpm</td>
+        <td>${record.hr180} bpm</td>
+        <td>${record.hr225} bpm</td>
         <td>${record.recovery45} bpm</td>
         <td>${record.recovery90} bpm</td>
         <td>${record.recovery135} bpm</td>
