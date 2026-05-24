@@ -6,11 +6,8 @@ const recovery180El = document.getElementById('recovery180');
 const recovery225El = document.getElementById('recovery225');
 const recordsTableBody = document.getElementById('recordsTableBody');
 const clearBtn = document.getElementById('clearBtn');
-const ctx = document.getElementById('trendChart').getContext('2d');
-
 const STORAGE_KEY = 'heartRateRecords';
 let records = [];
-let chart;
 
 function parseNumber(value) {
   const num = Number(value);
@@ -100,82 +97,7 @@ function loadRecords() {
   }
 }
 
-function createChart() {
-  const labels = records.map((item) => formatDatetime(item.recordTime));
-  const datasetBuilder = (key, label, color) => ({
-    label,
-    data: records.map((item) => item[key]),
-    borderColor: color,
-    backgroundColor: color.replace('1)', '0.18)'),
-    tension: 0.28,
-    pointRadius: 4,
-    borderWidth: 2,
-    fill: false,
-  });
-
-  const datasets = [
-    datasetBuilder('immediateHr', '運動後即刻心率', 'rgba(60,130,255,1)'),
-    datasetBuilder('recovery45', '45秒恢復值', 'rgba(45,226,169,1)'),
-    datasetBuilder('recovery90', '90秒恢復值', 'rgba(0,176,255,1)'),
-    datasetBuilder('recovery135', '135秒恢復值', 'rgba(170,120,255,1)'),
-    datasetBuilder('recovery180', '180秒恢復值', 'rgba(255,172,51,1)'),
-    datasetBuilder('recovery225', '225秒恢復值', 'rgba(255,86,160,1)'),
-  ];
-
-  if (chart) {
-    chart.data.labels = labels;
-    chart.data.datasets = datasets;
-    chart.update();
-    return;
-  }
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets,
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        mode: 'index',
-        intersect: false,
-      },
-      plugins: {
-        legend: {
-          labels: {
-            color: '#d3d8ff',
-          },
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => `${context.dataset.label}: ${context.formattedValue} bpm`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: '#a1b0d5',
-          },
-          grid: {
-            color: 'rgba(255,255,255,0.05)',
-          },
-        },
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: '#a1b0d5',
-          },
-          grid: {
-            color: 'rgba(255,255,255,0.06)',
-          },
-        },
-      },
-    },
-  });
-}
+// 圖表功能已移除：保留資料處理與表格呈現
 
 form.addEventListener('input', updateRecoveryValues);
 
@@ -205,7 +127,6 @@ form.addEventListener('submit', (event) => {
   records.push(record);
   saveRecords();
   renderTable();
-  createChart();
   form.reset();
   updateRecoveryValues();
 });
@@ -216,13 +137,11 @@ clearBtn.addEventListener('click', () => {
     records = [];
     saveRecords();
     renderTable();
-    createChart();
   }
 });
 
 window.addEventListener('DOMContentLoaded', () => {
   loadRecords();
   renderTable();
-  createChart();
   updateRecoveryValues();
 });
