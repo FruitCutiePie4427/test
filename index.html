@@ -96,14 +96,21 @@
           <h2>紀錄列表</h2>
           <button id="clearBtn" class="secondary-btn">清除全部紀錄</button>
         </div>
+        <div id="statsSummary" class="stats-grid" aria-live="polite">
+          <!-- 統計摘要會由 script.js 填入 -->
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>日期</th>
-                <th>運動</th>
-                <th>安靜心率</th>
-                <th>即時心率</th>
+                <th class="nowrap-col" rowspan="2">日期</th>
+                <th class="nowrap-col" rowspan="2">運動</th>
+                <th class="nowrap-col" rowspan="2">安靜心率</th>
+                <th class="nowrap-col" rowspan="2">即時心率</th>
+                <th colspan="5">心率數值</th>
+                <th colspan="5">恢復值</th>
+              </tr>
+              <tr>
                 <th>45s 心率</th>
                 <th>90s 心率</th>
                 <th>135s 心率</th>

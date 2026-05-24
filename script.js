@@ -6,6 +6,7 @@ const recovery180El = document.getElementById('recovery180');
 const recovery225El = document.getElementById('recovery225');
 const recordsTableBody = document.getElementById('recordsTableBody');
 const clearBtn = document.getElementById('clearBtn');
+const statsSummary = document.getElementById('statsSummary');
 const STORAGE_KEY = 'heartRateRecords';
 let records = [];
 
@@ -58,6 +59,7 @@ function formatDatetime(value) {
 function renderTable() {
   if (!records.length) {
     recordsTableBody.innerHTML = `<tr><td colspan="14" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
+    renderStats();
     return;
   }
 
@@ -67,15 +69,19 @@ function renderTable() {
     .map((record) => {
       return `
       <tr>
-        <td>${formatDatetime(record.recordTime)}</td>
-        <td>${record.activityName}</td>
-        <td>${record.restHr} bpm</td>
-        <td>${record.immediateHr} bpm</td>
+        <td class="nowrap-col">${formatDatetime(record.recordTime)}</td>
+        <td class="nowrap-col">${record.activityName}</td>
+        <td class="nowrap-col">${record.restHr} bpm</td>
+        <td class="nowrap-col">${record.immediateHr} bpm</td>
         <td>${record.hr45} bpm</td>
         <td>${record.hr90} bpm</td>
         <td>${record.hr135} bpm</td>
         <td>${record.hr180} bpm</td>
         <td>${record.hr225} bpm</td>
+        <td colspan="5" class="empty-cell"></td>
+      </tr>
+      <tr class="recovery-row">
+        <td colspan="9" class="subrow-label">心率恢復值</td>
         <td>${record.recovery45} bpm</td>
         <td>${record.recovery90} bpm</td>
         <td>${record.recovery135} bpm</td>
@@ -85,6 +91,33 @@ function renderTable() {
     `;
     })
     .join('');
+  renderStats();
+}
+
+function avg(values) {
+  if (!values.length) return 0;
+  const sum = values.reduce((s, v) => s + Number(v || 0), 0);
+  return Math.round((sum / values.length) * 10) / 10;
+}
+
+function renderStats() {
+  if (!statsSummary) return;
+  if (!records.length) {
+    statsSummary.innerHTML = `<div class="stat-item"><p>紀錄數量</p><strong>0</strong></div>`;
+    return;
+  }
+
+  const total = records.length;
+  const avgImmediate = avg(records.map((r) => r.immediateHr));
+  const avgRecovery45 = avg(records.map((r) => r.recovery45));
+  const latest = records[records.length - 1];
+
+  statsSummary.innerHTML = `
+    <div class="stat-item"><p>紀錄數量</p><strong>${total}</strong></div>
+    <div class="stat-item"><p>平均即時心率</p><strong>${avgImmediate} bpm</strong></div>
+    <div class="stat-item"><p>平均45s 恢復</p><strong>${avgRecovery45} bpm</strong></div>
+    <div class="stat-item"><p>最新紀錄</p><strong>${formatDatetime(latest.recordTime)}</strong></div>
+  `;
 }
 
 function saveRecords() {

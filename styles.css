@@ -197,6 +197,48 @@ button {
   margin-top: 16px;
 }
 
+.stats-grid {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  min-width: 140px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.stat-item p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.stat-item strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, rgba(18,25,41,0.95), rgba(18,25,41,0.9));
+  z-index: 2;
+}
+
+.nowrap-col {
+  white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.01);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -215,10 +257,23 @@ tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
+tbody tr.recovery-row {
+  background: rgba(45, 226, 169, 0.06);
+}
+
 tbody td {
   padding: 14px 12px;
   color: var(--text);
   font-size: 0.95rem;
+}
+
+td.empty-cell {
+  background: transparent;
+}
+
+.subrow-label {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .empty-state {
