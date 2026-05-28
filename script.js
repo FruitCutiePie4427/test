@@ -66,9 +66,10 @@ function renderTable() {
   recordsTableBody.innerHTML = records
     .slice()
     .reverse()
-    .map((record) => {
+    .map((record, index) => {
+      const groupClass = index % 2 === 0 ? 'group-even' : 'group-odd';
       return `
-      <tr>
+      <tr class="record-row ${groupClass}">
         <td class="nowrap-col">${formatDatetime(record.recordTime)}</td>
         <td class="nowrap-col">${record.activityName}</td>
         <td class="nowrap-col">${record.restHr} bpm</td>
@@ -80,7 +81,7 @@ function renderTable() {
         <td>${record.hr225} bpm</td>
         <td colspan="5" class="empty-cell"></td>
       </tr>
-      <tr class="recovery-row">
+      <tr class="recovery-row ${groupClass}">
         <td colspan="9" class="subrow-label">心率恢復值</td>
         <td>${record.recovery45} bpm</td>
         <td>${record.recovery90} bpm</td>
