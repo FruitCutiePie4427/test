@@ -58,7 +58,7 @@ function formatDatetime(value) {
 
 function renderTable() {
   if (!records.length) {
-    recordsTableBody.innerHTML = `<tr><td colspan="14" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
+    recordsTableBody.innerHTML = `<tr><td colspan="15" class="empty-state">尚無紀錄，請先新增資料。</td></tr>`;
     renderStats();
     return;
   }
@@ -67,9 +67,11 @@ function renderTable() {
     .slice()
     .reverse()
     .map((record, index) => {
+      const sequenceNum = records.length - index; // 由舊至新編號
       const groupClass = index % 2 === 0 ? 'group-even' : 'group-odd';
       return `
       <tr class="record-row ${groupClass}">
+        <td class="nowrap-col">${sequenceNum}</td>
         <td class="nowrap-col">${formatDatetime(record.recordTime)}</td>
         <td class="nowrap-col">${record.activityName}</td>
         <td class="nowrap-col">${record.restHr} bpm</td>
@@ -82,7 +84,7 @@ function renderTable() {
         <td colspan="5" class="empty-cell"></td>
       </tr>
       <tr class="recovery-row ${groupClass}">
-        <td colspan="9" class="subrow-label">心率恢復值</td>
+        <td colspan="10" class="subrow-label">心率恢復值</td>
         <td>${record.recovery45} bpm</td>
         <td>${record.recovery90} bpm</td>
         <td>${record.recovery135} bpm</td>
@@ -168,6 +170,9 @@ form.addEventListener('submit', (event) => {
   renderTable();
   form.reset();
   updateRecoveryValues();
+  
+  // 發送數據到 Google Sheets
+  sendToGoogleSheets(record);
 });
 
 clearBtn.addEventListener('click', () => {
@@ -178,6 +183,64 @@ clearBtn.addEventListener('click', () => {
     renderTable();
   }
 });
+
+/**
+ * 發送數據到 Google Apps Script
+ */
+async function sendToGoogleSheets(recordData) {
+  const deploymentUrl = document.getElementById('deploymentUrl').value;
+  
+  if (!deploymentUrl || deploymentUrl === 'YOUR_DEPLOYMENT_URL') {
+    console.warn('未設定 Google Sheets 部署 URL，跳過遠端同步');
+    return;
+  }
+
+  try {
+    const response = await fetch(deploymentUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(recordData)
+    });
+
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      console.log('✓ 數據已成功同步至 Google Sheets');
+      showNotification('數據已上傳至 Google Sheets', 'success');
+    } else {
+      console.error('Google Sheets 同步失敗:', result.message);
+      showNotification('Google Sheets 同步失敗', 'error');
+    }
+  } catch (error) {
+    console.error('發送到 Google Sheets 時出錯:', error);
+    showNotification('網絡錯誤，無法同步至 Google Sheets', 'error');
+  }
+}
+
+/**
+ * 顯示用戶通知
+ */
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 20px;
+    background: ${type === 'success' ? '#2de2a9' : '#ff6b6b'};
+    color: ${type === 'success' ? '#0b1320' : '#fff'};
+    border-radius: 8px;
+    font-weight: 600;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => notification.remove(), 3000);
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   loadRecords();
