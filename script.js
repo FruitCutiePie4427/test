@@ -188,8 +188,9 @@ clearBtn.addEventListener('click', () => {
  * 發送數據到 Google Apps Script
  */
 async function sendToGoogleSheets(recordData) {
-  const deploymentUrl = document.getElementById('deploymentUrl').value;
-  
+  const deploymentEl = document.getElementById('deploymentUrl');
+  const deploymentUrl = deploymentEl ? deploymentEl.value : '';
+
   if (!deploymentUrl || deploymentUrl === 'YOUR_DEPLOYMENT_URL') {
     console.warn('未設定 Google Sheets 部署 URL，跳過遠端同步');
     return;
@@ -198,19 +199,23 @@ async function sendToGoogleSheets(recordData) {
   try {
     const response = await fetch(deploymentUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(recordData)
     });
 
-    const result = await response.json();
-    
-    if (result.status === 'success') {
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (err) {
+      result = { status: response.ok ? 'success' : 'error', message: text };
+    }
+
+    if (response.ok && result.status === 'success') {
       console.log('✓ 數據已成功同步至 Google Sheets');
       showNotification('數據已上傳至 Google Sheets', 'success');
     } else {
-      console.error('Google Sheets 同步失敗:', result.message);
+      console.error('Google Sheets 同步失敗:', result && result.message ? result.message : text);
       showNotification('Google Sheets 同步失敗', 'error');
     }
   } catch (error) {
