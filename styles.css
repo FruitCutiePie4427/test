@@ -27,7 +27,8 @@ body {
 }
 
 body {
-  padding: 24px;
+  /* 保持上方/下方間距，移除右側內距讓版面靠左 */
+  padding: 24px 0 24px 24px;
   overflow-x: hidden;
 }
 
@@ -40,7 +41,8 @@ body {
 .app-header {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  /* 由兩端對齊改為靠左對齊，保留換行與間距行為 */
+  justify-content: flex-start;
   gap: 16px;
   align-items: flex-end;
   margin-bottom: 24px;
